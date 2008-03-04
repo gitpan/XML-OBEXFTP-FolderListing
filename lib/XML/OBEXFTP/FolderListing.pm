@@ -3,7 +3,7 @@ package XML::OBEXFTP::FolderListing;
 use warnings;
 use strict;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 use Carp;
 use XML::Simple;
 use base 'Class::Data::Accessor';
@@ -17,8 +17,7 @@ sub parse {
     my ( $self, $data ) = @_;
     return undef
         unless defined $data;
-
-    my $parse_ref = XMLin($data);
+    my $parse_ref = XMLin($data,ForceArray => [ 'folder', 'file' ] );
     $parse_ref->{parent_folder} = delete $parse_ref->{'parent-folder'};
     $self->parent_folder( $parse_ref->{parent_folder}  );
 
