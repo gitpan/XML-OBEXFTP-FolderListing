@@ -11,12 +11,16 @@ my $builder = Module::Build->new(
         'Test::More' => 0,
     },
     requires => {
-        'Class::Data::Accessor' => 0.04001,
+        'Class::Accessor::Grouped' => 0,
         'XML::Simple'           => 2.18,
         'Carp'                  => 1.04,
+        'perl' => '5.006',
     },
     add_to_cleanup      => [ 'XML-OBEXFTP-FolderListing-*' ],
     create_makefile_pl => 'traditional',
 );
+if ( $ENV{RELEASE_TESTING} ) {
+    system('pod2text lib/XML/OBEXFTP/FolderListing.pm > README');
+}
 
 $builder->create_build_script();

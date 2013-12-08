@@ -1,40 +1,332 @@
-XML-OBEXFTP-FolderListing
+NAME
+    XML::OBEXFTP::FolderListing - parse OBEX FTP x-obex/folder-listing XML
 
-INSTALLATION
+SYNOPSIS
+        use strict;
+        use warnings;
+        use lib '../lib';
+        use XML::OBEXFTP::FolderListing;
 
-To install this module, run the following commands:
+        my $data =<<'END_DATA';
+        <?xml version="1.0" ?>
+        <!DOCTYPE folder-listing SYSTEM "obex-folder-listing.dtd">
+        <folder-listing>
+        <parent-folder />
+        <folder name="audio" size="0" type="folder" modified="19700101T000000Z" user-perm="RW" />
+        <folder name="video" size="0" type="folder" modified="19700101T000000Z" user-perm="RW" />
+        <folder name="picture" size="0" type="folder" modified="19700101T000000Z" user-perm="RW" />
+        <file name="31-01-08_2213.jpg" size="27665" type="image/jpeg" modified="20080131T221123Z" user-perm="RW" />
+        <file name="26-01-08_1228.jpg" size="40196" type="image/jpeg" modified="20080126T122836Z" user-perm="RW" />
+        <file name="05-02-08_2043.jpg" size="33210" type="image/jpeg" modified="20080205T204310Z" user-perm="RW" />
+        <file name="26-01-08_0343.jpg" size="40802" type="image/jpeg" modified="20080126T034339Z" user-perm="RW" />
+        <file name="05-02-08_2312.jpg" size="33399" type="image/jpeg" modified="20080205T230946Z" user-perm="RW" />
+        <file name="05-02-08_2047.jpg" size="21318" type="image/jpeg" modified="20080205T204358Z" user-perm="RW" />
+        </folder-listing>
+        END_DATA
 
-	perl Build.PL
-	./Build
-	./Build test
-	./Build install
+        my $p = XML::OBEXFTP::FolderListing->new;
 
-SUPPORT AND DOCUMENTATION
+        $p->parse($data);
 
-After installing, you can find documentation for this module with the
-perldoc command.
+        for ( @{ $p->folders } ) {
+            printf "Folder: %s\n\tPermissions: %s\n\tLast-Modified: %s\n\n",
+                    $_, $p->perms( $_, 'folder' ), $p->modified( $_, 'folder' );
+        }
 
-    perldoc XML::OBEXFTP::FolderListing
+        for my $file ( @{ $p->files } ) {
+            printf "File: %s\n\tPermissions: %s\n\tSize: %s\n\tType: %s\n\t"
+                    . "Last-Modified: %s\n\n",
+                    $file, map { $p->$_( $file ) } qw( perms size type modified );
+        }
 
-You can also look for information at:
+DESCRIPTION
+    The module provides means to parse information from OBEX File Transfer
+    Profile XML.
 
-    RT, CPAN's request tracker
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=XML-OBEXFTP-FolderListing
+CONSTRUCTOR
+  new
+        my $p = XML::OBEXFTP::FolderListing->new;
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/XML-OBEXFTP-FolderListing
+    Takes no arguments, returns a freshly made XML::OBEXFTP::FolderListing
+    object that still has that "new object" smell on it!.
 
-    CPAN Ratings
-        http://cpanratings.perl.org/d/XML-OBEXFTP-FolderListing
+METHODS
+  parse
+        my $tree = $p->parse( $your_XML_data );
 
-    Search CPAN
-        http://search.cpan.org/dist/XML-OBEXFTP-FolderListing
+    Takes one mandatory argument which is the OBEX FTP x-obex/folder-listing
+    XML data. Returns a hashref which is a full parsed tree of your data,
+    e.g:
 
+        $VAR1 = {
+              'parent_folder' => {},
+              'file' => {
+                          '26-01-08_1228.jpg' => {
+                                                 'type' => 'image/jpeg',
+                                                 'size' => '40196',
+                                                 'modified' => '20080126T122836Z',
+                                                 'user-perm' => 'RW'
+                                               },
+                          '05-02-08_2312.jpg' => {
+                                                 'type' => 'image/jpeg',
+                                                 'size' => '33399',
+                                                 'modified' => '20080205T230946Z',
+                                                 'user-perm' => 'RW'
+                                               },
+                          '26-01-08_0343.jpg' => {
+                                                 'type' => 'image/jpeg',
+                                                 'size' => '40802',
+                                                 'modified' => '20080126T034339Z',
+                                                 'user-perm' => 'RW'
+                                               },
+                          '05-02-08_2043.jpg' => {
+                                                 'type' => 'image/jpeg',
+                                                 'size' => '33210',
+                                                 'modified' => '20080205T204310Z',
+                                                 'user-perm' => 'RW'
+                                               },
+                          '31-01-08_2213.jpg' => {
+                                                 'type' => 'image/jpeg',
+                                                 'size' => '27665',
+                                                 'modified' => '20080131T221123Z',
+                                                 'user-perm' => 'RW'
+                                               },
+                          '05-02-08_2047.jpg' => {
+                                                 'type' => 'image/jpeg',
+                                                 'size' => '21318',
+                                                 'modified' => '20080205T204358Z',
+                                                 'user-perm' => 'RW'
+                                               }
+                        },
+              'folder' => {
+                            'audio' => {
+                                       'type' => 'folder',
+                                       'size' => '0',
+                                       'modified' => '19700101T000000Z',
+                                       'user-perm' => 'RW'
+                                     },
+                            'video' => {
+                                       'type' => 'folder',
+                                       'size' => '0',
+                                       'modified' => '19700101T000000Z',
+                                       'user-perm' => 'RW'
+                                     },
+                            'picture' => {
+                                         'type' => 'folder',
+                                         'size' => '0',
+                                         'modified' => '19700101T000000Z',
+                                         'user-perm' => 'RW'
+                                       }
+                          }
+            };
 
-COPYRIGHT AND LICENCE
+  folders
+        my $folders_ref = $p->folders;
 
-Copyright (C) 2008 Zoffix Znet
+    Must be called after a call to "parse()". Takes no arguments. Returns a
+    possibly empty arrayref, elements of which are the names of folders your
+    XML contains.
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+  files
+        my $files_ref = $p->files;
+
+    Must be called after a call to "parse()". Takes no arguments. Returns a
+    possibly empty arrayref, elements of which are the names of files your
+    XML contains.
+
+  parent_folder
+        my $parent_folder = $p->parent_folder;
+
+    Must be called after a call to "parse()". Takes no arguments. Supposedly
+    should return the parent folder of your OBEX FTP listing, I am yet to
+    see XML contain that info, maybe it's just my device (I got only one).
+    Please tell me if this actually works for someone.
+
+  tree
+        my $tree = $p->tree;
+
+    Must be called after a call to "parse()". Takes no arguments. Returns
+    the same hashref as the return of last "parse()". See "parse()" method
+    above for more information.
+
+  is_folder
+        if ( $p->is_folder('audio') ) {
+            # it's a folder, maybe we should setpath to it
+        }
+
+    Must be called after a call to "parse()". Takes one mandatory argument
+    which is the name of the folder. Returns a true value if the name you
+    provided is a name of a folder. Returns a false value if the name you've
+    specified does not exist in the "folder" listing of your XML.
+
+  is_file
+        if ( $p->is_file('05-02-08_2043.jpg') ) {
+            # it's a file, maybe we should download it
+        }
+
+    Must be called after a call to "parse()". Takes one mandatory argument
+    which is the name of the file. Returns a true value if the name you
+    provided is a name of a file. Returns a false value if the name you've
+    specified does not exist in the "file" listing of your XML.
+
+  perms
+        my $permissions = $p->perms('05-02-08_2043.jpg');
+
+        my $permissions2 = $p->perms('audio', 'folder' );
+
+    Must be called after a call to "parse()". Takes one mandatory and one
+    optional arguments. The first argument is the name of either a file or a
+    folder, the second argument can contain either "file" or "folder" to
+    specify whether your name is a name of a file or a folder respectively;
+    if not specified it will default to "file".
+
+    Returns a string containing the permissions of the folder or file you've
+    specified, e.g. "RW" for read-write access. Will return "undef" if
+    specified file/folder was not found in your XML.
+
+  size
+        my $size = $p->size('05-02-08_2043.jpg');
+
+    Must be called after a call to "parse()". Takes one mandatory argument
+    which is a name of a file. Returns file's size in bytes. All folders
+    have size of zero. Will return "undef" if specified file was not found
+    in your XML.
+
+  type
+        my $type = $p->type('05-02-08_2043.jpg');
+
+    Must be called after a call to "parse()". Takes one mandatory argument
+    which is the name of the file. Returns a string containing file's type
+    (MIME), e.g. "image/jpeg". All folders have a type of "folder". Will
+    return "undef" if specified file was not found in your XML.
+
+  modified
+        my $modified = $p->modified('05-02-08_2043.jpg');
+
+        my $modified = $p->modified('audio', 'folder' );
+
+    Must be called after a call to "parse()". Takes one mandatory and one
+    optional arguments. The first argument is the name of either the file or
+    a folder. The second optional argument can be set to either "file" or
+    "folder" to indicate whether your name represents a file or a folder; it
+    will default to "file".
+
+    Returns a scalar containing the modification date of the folder or file
+    you've specified, e.g. "20080205T204358Z". Will return "undef" if
+    specified file/folder was not found in your XML.
+
+  modified_sane
+        my $modified = $p->modified_sane('05-02-08_2043.jpg');
+
+        my $modified = $p->modified_sane('audio', 'folder' );
+
+    Must be called after a call to "parse()". Takes one mandatory and one
+    optional arguments. The first argument is the name of either the file or
+    a folder. The second optional argument can be set to either "file" or
+    "folder" to indicate whether your name represents a file or a folder; it
+    will default to "file".
+
+    The method is similiar to "modified()" except it returns a hashref with
+    the following keys/values representing the last modification time of
+    your folder/file:
+
+        $VAR1 = {
+            'hour' => '12',
+            'minute' => '28',
+            'second' => '36',
+            'month' => '01',
+            'day' => '26',
+            'year' => '2008'
+        };
+
+    Will return "undef" if specified file/folder was not found in your XML.
+
+  info
+        my $info_ref = $p->info('05-02-08_2043.jpg');
+
+        my $info2_ref = $p->info('audio', 'folder' );
+
+    Must be called after a call to "parse()". Takes one mandatory and one
+    optional arguments. The first argument is the name of either the file or
+    a folder. The second optional argument can be set to either "file" or
+    "folder" to indicate whether your name represents a file or a folder; it
+    will default to "file".
+
+    This method combines info from "modified()", "type()", "perms()",
+    "size()" and "modified_sane()" methods. Will return "undef" if specified
+    file/folder was not found in your XML. Otherwise returns a hashref with
+    the following keys/values:
+
+        $VAR1 = {
+            'type' => 'image/jpeg',
+            'modified_sane' => {
+                'hour' => '12',
+                'minute' => '28',
+                'second' => '36',
+                'month' => '01',
+                'day' => '26',
+                'year' => '2008'
+            },
+            'perms' => 'RW',
+            'size' => '40196',
+            'modified' => '20080126T122836Z'
+        };
+
+    type      See "type()" method.
+
+    modified_sane
+              See "modified_sane()" method.
+
+    perms     See "perms()" method.
+
+    size      See "size()" method.
+
+    modified  See "modified()" method.
+
+    *Note:* the "info()" method does NOT call each of the method listed
+    above, it just takes a piece of "tree()" and appends "modified_sane()"
+    and changes the name of "user-perm" key. Therefore, it's possible that
+    it might contain some extra keys. Let me know if you come across such
+    case.
+
+AUTHOR
+    Zoffix Znet, "<zoffix at cpan.org>" (<http://zoffix.com>,
+    <http://haslayout.net>)
+
+BUGS
+    Please report any bugs or feature requests to
+    "bug-xml-obexftp-folderlisting at rt.cpan.org", or through the web
+    interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=XML-OBEXFTP-FolderListin
+    g>. I will be notified, and then you'll automatically be notified of
+    progress on your bug as I make changes.
+
+SUPPORT
+    You can find documentation for this module with the perldoc command.
+
+        perldoc XML::OBEXFTP::FolderListing
+
+    You can also look for information at:
+
+    *   RT: CPAN's request tracker
+
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=XML-OBEXFTP-FolderListing>
+
+    *   AnnoCPAN: Annotated CPAN documentation
+
+        <http://annocpan.org/dist/XML-OBEXFTP-FolderListing>
+
+    *   CPAN Ratings
+
+        <http://cpanratings.perl.org/d/XML-OBEXFTP-FolderListing>
+
+    *   Search CPAN
+
+        <http://search.cpan.org/dist/XML-OBEXFTP-FolderListing>
+
+COPYRIGHT & LICENSE
+    Copyright 2008 Zoffix Znet, all rights reserved.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 

@@ -3,11 +3,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 29;
+use Test::More tests => 30;
 
 BEGIN {
     use_ok('XML::Simple');
     use_ok('Carp');
+    use_ok('Class::Accessor::Grouped');
 	use_ok('XML::OBEXFTP::FolderListing');
 }
 

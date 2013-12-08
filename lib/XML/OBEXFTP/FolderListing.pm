@@ -3,11 +3,13 @@ package XML::OBEXFTP::FolderListing;
 use warnings;
 use strict;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 use Carp;
 use XML::Simple;
-use base 'Class::Data::Accessor';
-__PACKAGE__->mk_classaccessors qw(folders files parent_folder  tree);
+use base 'Class::Accessor::Grouped';
+__PACKAGE__->mk_group_accessors(
+    simple => qw(folders files parent_folder  tree)
+);
 
 sub new {
     return bless {}, shift;
@@ -91,6 +93,8 @@ sub modified_sane {
 1;
 
 __END__
+
+=encoding utf8
 
 =head1 NAME
 

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use lib '../lib';
+use lib qw(../lib  lib);
 use XML::OBEXFTP::FolderListing;
 
 
