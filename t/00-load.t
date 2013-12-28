@@ -3,13 +3,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 30;
+use Test::More tests => 37;
 
 BEGIN {
     use_ok('XML::Simple');
     use_ok('Carp');
     use_ok('Class::Accessor::Grouped');
-	use_ok('XML::OBEXFTP::FolderListing');
+  	use_ok('XML::OBEXFTP::FolderListing');
 }
 
 diag( "Testing XML::OBEXFTP::FolderListing $XML::OBEXFTP::FolderListing::VERSION, Perl $], $^X" );
@@ -63,22 +63,20 @@ is(
     q|->perms('audio', 'folder')|,
 );
 
-my $VAR1 = [
-          'audio',
-          'video',
-          'picture'
-        ];
-is_deeply( $VAR1, $p->folders, '->folders()' );
 
-$VAR1 = [
-          '26-01-08_1228.jpg',
-          '05-02-08_2312.jpg',
-          '26-01-08_0343.jpg',
-          '05-02-08_2043.jpg',
-          '31-01-08_2213.jpg',
-          '05-02-08_2047.jpg'
-        ];
-is_deeply( $VAR1, $p->files, '->files()' );
+my @folders = @{ $p->folders };
+ok( scalar(grep $_ eq 'audio', @folders), '->folders has `audio`');
+ok( scalar(grep $_ eq 'video', @folders), '->folders has `video`');
+ok( scalar(grep $_ eq 'picture', @folders), '->folders has `picture`');
+
+my @files = @{ $p->files };
+for my $file (
+    '26-01-08_1228.jpg',  '05-02-08_2312.jpg',   '26-01-08_0343.jpg',
+    '05-02-08_2043.jpg',  '31-01-08_2213.jpg',   '05-02-08_2047.jpg'
+) {
+    ok( scalar(grep $_ eq $file, @files), '->files has `$file`');
+}
+
 is(
     $p->size('31-01-08_2213.jpg'),
     '27665',
@@ -111,7 +109,7 @@ is(
     q|->modified('26-01-08_0343.jpg')|,
 );
 
-$VAR1 = {
+my $VAR1 = {
           'hour' => '00',
           'minute' => '00',
           'second' => '00',

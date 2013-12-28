@@ -3,7 +3,7 @@ package XML::OBEXFTP::FolderListing;
 use warnings;
 use strict;
 
-our $VERSION = '0.003';
+our $VERSION = '1.001';
 use Carp;
 use XML::Simple;
 use base 'Class::Accessor::Grouped';

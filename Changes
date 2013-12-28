@@ -1,5 +1,8 @@
 Revision history for XML-OBEXFTP-FolderListing
 
+1.001   2013-12-27
+        - Fixed a broken test
+
 0.003   2013-12-07
         - Fixed the "Use of qw(..." warning
         - Minor fixes to comply with the specs and Kwalitee game

@@ -16,6 +16,7 @@ my $builder = Module::Build->new(
         'Carp'                  => 1.04,
         'perl' => '5.006',
     },
+    configure_requires => { 'Module::Build' => 0 },
     add_to_cleanup      => [ 'XML-OBEXFTP-FolderListing-*' ],
     create_makefile_pl => 'traditional',
 );
